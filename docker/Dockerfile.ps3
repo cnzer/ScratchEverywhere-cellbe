@@ -1,0 +1,22 @@
+#  ____________
+# /            \
+# |  CELL/B.E  |
+# |            |
+# |  SCE 2006  |
+# \____________/
+#
+# PS3 port by Conzer
+#
+#
+# PS3 Build using psl1ght/psl1ght Docker image
+FROM psl1ght/psl1ght:latest AS main_builder
+ENV CATALOG_NON_INTERACTIVE=1
+WORKDIR /app
+
+COPY . .
+
+# Build for PS3
+RUN cmake -DCMAKE_TOOLCHAIN_FILE=cmake/platforms/ps3.toolchain.cmake -DCMAKE_BUILD_TYPE=Release -DSE_RENDERER=sdl2 -DSE_AUDIO_ENGINE=sdl2 -DPS3=ON -B build/ps3 && cmake --build build/ps3 -j 2
+
+FROM scratch AS exporter
+COPY --from=main_builder /app/build/ps3/scratch-ps3 /
